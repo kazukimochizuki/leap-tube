@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Leap Tube</title>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js"></script>
+  <script src="http://js.leapmotion.com/leap-0.6.4.js"></script>
+  <script src="js/leap-plugins-0.1.11pre.js"></script>
+  <script src="build/leap-widgets-0.1.0.js"></script>
+  <script src="js/OrbitControls.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="shards.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    canvas.leap-boneHand{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #title{
+      position: absolute;
+      bottom: 30px;
+      left: 30px;
+      /*background-color: #fff;*/
+    }
+    #bg{
+      position: absolute;
+      background-image: url(imgs/yosemite.jpg);
+      -webkit-background-size: cover;
+      background-size: cover;
+      width: 100%;
+      height: 100%;
+      opacity: .8;
+      /*background-color: rgba(150,150,255,0.5);
+      background: linear-gradient(-135deg, #E4A972, #9941D8);*/
+    }
+    #processing-canvas{
+      opacity: 0.2;
+    }
+    #myPlayer{
+      position:absolute;
+      top:60%;
+      left:50%;
+      -moz-transform:translate(-50%, -50%);
+      -webkit-transform:translate(-50%, -50%);
+      -o-transform:translate(-50%, -50%);
+      -ms-transform:translate(-50%, -50%);
+      transform:translate(-50%, -50%);
+    }
+    iframe{
+      background-color: #ccc;
+    }
+
+
+
+  </style>
+
+</head>
+<body>
+
+<div id="bg"></div>
+
+<canvas id="processing-canvas"></canvas>
+
+
+<div id="title">
+  <img src="imgs/leap-tube.png" height="82" width="208" alt="">
+</div>
+
+<audio id="sound-file" preload="auto" style="display:none;">
+    <source src="sounds/taiko_renda.mp3" type="audio/mp3" style="display:none;">
+</audio>
+<audio id="sound-file2" preload="auto" style="display:none;">
+    <source src="sounds/syamisen.mp3" type="audio/mp3" style="display:none;">
+</audio>
+<audio id="sound-file3" preload="auto" style="display:none;">
+    <source src="sounds/syakuhati.mp3" type="audio/mp3" style="display:none;">
+</audio>
+<audio id="sound-file4" preload="auto" style="display:none;">
+    <source src="sounds/clappers01.mp3" type="audio/mp3" style="display:none;">
+</audio>
+<audio id="sound-file5" preload="auto" style="display:none;">
+    <source src="sounds/small-bell01.mp3" type="audio/mp3" style="display:none;">
+</audio>
+<audio id="sound-file6" preload="auto" style="display:none;">
+    <source src="sounds/hand-drum01.mp3" type="audio/mp3" style="display:none;">
+</audio>
+
+
+
+<script>
+  'use strict';
+
+  // プラグイン
+  Leap.loop({background: true})
+    .use('transform', {// https://developer.leapmotion.com/gallery/transform-plugin
+      position: new THREE.Vector3(0,-0.3,0.1),//handの位置
+      vr: 'desktop' // Switch to meters.
+      // Scale: 2
+    })
+    .use('boneHand', {//https://developer.leapmotion.com/gallery/bone-hands
+      targetEl: document.body,
+      opacity:.3,
+      boneScale: 1/6,
+      jointScale:1/20,
+      boneColor: new THREE.Color(0xff0000),
+      jointColor: new THREE.Color(0x0000ff),
+      rendererOps: {antialias: true}
+    });
+
+
+  // scene
+  var scene = Leap.loopController.plugins.boneHand.scene;
+  var camera = Leap.loopController.plugins.boneHand.camera;
+  var renderer = Leap.loopController.plugins.boneHand.renderer;
+  camera.position.set( 0, 0, 0.5 );
+
+  var controls = new THREE.OrbitControls( camera );
+
+  // var axisHelper = new THREE.AxisHelper( 0.1 );
+  // scene.add( axisHelper );
+
+  // plane
+  var planeGeo = new THREE.PlaneGeometry(0.1, 0.1);
+  var material = new THREE.MeshPhongMaterial();
+  var buttonMesh = new THREE.Mesh(planeGeo, material);
+
+//   buttonMesh.name = "rectangular button";
+
+//  // buttonMesh.scale.setY(0.5);//スケールチェンジもできる
+
+
+//   var longThrow = -0.05;//厚み
+//   var squareButton = new PushButton(
+
+//     new InteractablePlane(buttonMesh, Leap.loopController),
+
+//     {
+//       locking: false,
+//       longThrow: longThrow
+//     }
+
+//   ).on('press', function(mesh){
+
+//     mesh.material.color.setHex(0xff0000);
+
+//   }).on('release', function(mesh){
+
+//     mesh.material.color.setHex(0xeeeeee);
+
+//   });
+
+//   var playCount = 0;
+//   squareButton.plane.hover(
+//     function(mesh){ // over
+//       document.getElementById("sound-file").play();
+//       //初回([playCount=0])以外だったら音声ファイルを巻き戻す
+//       if(playCount > 0){
+//         document.getElementById("sound-file").currentTime = 0;
+//       }
+//       //初回再生が終わった判定用に[playCount]の値を0から1に変更する
+//       playCount = 1;
+//       mesh.material.color.setHex(0x0000ff);
+//       mesh.scale.setX(1.2);
+//       mesh.scale.setY(1.2);
+
+//     },
+//     function(mesh){ // out
+//       // document.getElementById("sound-file").pause();
+//       console.log('hover out');
+//       mesh.material.color.setHex(0xeeeeee);
+//       mesh.scale.setX(1.0);
+//       mesh.scale.setY(1.0);
+//     }
+//   );
+
+
+//   //土台
+//   var base = new THREE.Mesh(new THREE.BoxGeometry(0.1, longThrow, longThrow), new THREE.MeshPhongMaterial({color: 0x222222}));
+//   base.position.set(0.05, 0, -0.1);
+//   // base.rotateY(Math.PI * -0.15);
+
+//   buttonMesh.position.set(
+//     0,
+//     buttonMesh.geometry.parameters.height / 2 - longThrow / 2,
+//     -longThrow / 2
+//   );
+//   squareButton.plane.resetPosition(); // resets the original position, etc to the current one
+
+// //  base.rotateX(Math.PI * -0.45);
+// //  base.position.set(0.2,0,0.2);
+
+//   base.add(buttonMesh);
+
+//   scene.add(base);
+  
+  
+  //尺八
+  var circleGeo = new THREE.CircleGeometry(0.02, 40);//(サイズ、角数)
+  var texture = THREE.ImageUtils.loadTexture('imgs/instrument03.png');
+  var material = new THREE.MeshBasicMaterial({map:texture});
+  material.opacity = 0.8; 
+  buttonMesh = new THREE.Mesh(circleGeo, material);
+  buttonMesh.name = "round button";
+
+  buttonMesh.position.set(-0.05, 0.15, 0);//丸ボタン移動
+  scene.add(buttonMesh);
+
+  var roundButton = new PushButton(
+    //https://github.com/leapmotion/leapjs-widgets
+    new InteractablePlane(buttonMesh, Leap.loopController, {moveX: false, moveY: false, locking: false, longThrow:-5, touched:true, hoverBounds: [0, 32]})
+  ).on('press', function(mesh){
+    // mesh.material.color.setHex(0xff0000);
+  }).on('release', function(mesh){
+    // mesh.material.color.setHex(0xffffff);
+  });
+
+  var playCount = 0;
+  roundButton.plane.hover(
+    function(mesh){ // over
+      document.getElementById("sound-file3").play();
+      //初回([playCount=0])以外だったら音声ファイルを巻き戻す
+      if(playCount > 0){
+        document.getElementById("sound-file3").currentTime = 0;
+      }
+      //初回再生が終わった判定用に[playCount]の値を0から1に変更する
+      playCount = 1;
+      console.log('hover in');
+      mesh.material.opacity = 1;
+      // mesh.material.color.setHex(0xff00ff);
+      mesh.scale.setX(1.2);
+      mesh.scale.setY(1.2);
+    },
+    function(mesh){ // out
+      // document.getElementById("sound-file").pause();
+      console.log('hover out');
+      mesh.material.opacity = 0.8;
+      // mesh.material.color.setHex(0xeeeeee);
+      mesh.scale.setX(1.0);
+      mesh.scale.setY(1.0);
+    }
+  );
+
+
+  //三味線
+  var circleGeo = new THREE.CircleGeometry(0.02, 40);//(サイズ、角数)
+  var texture = THREE.ImageUtils.loadTexture('imgs/instrument02.png');
+  var material = new THREE.MeshBasicMaterial({map:texture});
+  material.opacity = 0.8; 
+  buttonMesh = new THREE.Mesh(circleGeo, material);
+  buttonMesh.name = "round button";
+  buttonMesh.position.set(-0.15, 0.13, 0);//丸ボタン移動
+  scene.add(buttonMesh);
+
+  var roundButton = new PushButton(
+    new InteractablePlane(buttonMesh, Leap.loopController, {moveX: false, moveY: false})
+  );
+
+  var playCount = 0;
+  roundButton.plane.hover(
+    function(mesh){ // over
+      document.getElementById("sound-file2").play();
+      if(playCount > 0){
+        document.getElementById("sound-file2").currentTime = 0;
+      }
+      playCount = 1;
+      console.log('hover in');
+      mesh.material.opacity = 1;
+      mesh.scale.setX(1.2);
+      mesh.scale.setY(1.2);
+    },
+    function(mesh){ // out
+      console.log('hover out');
+      mesh.material.opacity = 0.8;
+      mesh.scale.setX(1.0);
+      mesh.scale.setY(1.0);
+    }
+  );
+
+
+  //太鼓連打
+  var circleGeo = new THREE.CircleGeometry(0.02, 40);//(サイズ、角数)
+  var texture = THREE.ImageUtils.loadTexture('imgs/instrument01.png');
+  var material = new THREE.MeshBasicMaterial({map:texture});
+  material.opacity = 0.8; 
+  buttonMesh = new THREE.Mesh(circleGeo, material);
+  buttonMesh.name = "round button";
+  buttonMesh.position.set(-0.25, 0.1, 0);//丸ボタン移動
+  scene.add(buttonMesh);
+
+  var roundButton = new PushButton(
+    new InteractablePlane(buttonMesh, Leap.loopController, {moveX: false, moveY: false})
+  );
+
+  var playCount = 0;
+  roundButton.plane.hover(
+    function(mesh){ // over
+      document.getElementById("sound-file").play();
+      if(playCount > 0){
+        document.getElementById("sound-file").currentTime = 0;
+      }
+      playCount = 1;
+      console.log('hover in');
+      mesh.material.opacity = 1;
+      mesh.scale.setX(1.2);
+      mesh.scale.setY(1.2);
+    },
+    function(mesh){ // out
+      console.log('hover out');
+      mesh.material.opacity = 0.8;
+      mesh.scale.setX(1.0);
+      mesh.scale.setY(1.0);
+    }
+  );
+
+
+  //拍子木
+  var circleGeo = new THREE.CircleGeometry(0.02, 40);//(サイズ、角数)
+  var texture = THREE.ImageUtils.loadTexture('imgs/instrument04.png');
+  var material = new THREE.MeshBasicMaterial({map:texture});
+  material.opacity = 0.8; 
+  buttonMesh = new THREE.Mesh(circleGeo, material);
+  buttonMesh.name = "round button";
+  buttonMesh.position.set(0.05, 0.15, 0);//丸ボタン移動
+  scene.add(buttonMesh);
+
+  var roundButton = new PushButton(
+    new InteractablePlane(buttonMesh, Leap.loopController, {moveX: false, moveY: false})
+  );
+
+  var playCount = 0;
+  roundButton.plane.hover(
+    function(mesh){ // over
+      document.getElementById("sound-file4").play();
+      if(playCount > 0){
+        document.getElementById("sound-file4").currentTime = 0;
+      }
+      playCount = 1;
+      console.log('hover in');
+      mesh.material.opacity = 1;
+      mesh.scale.setX(1.2);
+      mesh.scale.setY(1.2);
+    },
+    function(mesh){ // out
+      console.log('hover out');
+      mesh.material.opacity = 0.8;
+      mesh.scale.setX(1.0);
+      mesh.scale.setY(1.0);
+    }
+  );
+
+
+  //鈴
+  var circleGeo = new THREE.CircleGeometry(0.02, 40);//(サイズ、角数)
+  var texture = THREE.ImageUtils.loadTexture('imgs/instrument05.png');
+  var material = new THREE.MeshBasicMaterial({map:texture});
+  material.opacity = 0.8; 
+  buttonMesh = new THREE.Mesh(circleGeo, material);
+  buttonMesh.name = "round button";
+  buttonMesh.position.set(0.15, 0.13, 0);//丸ボタン移動
+  scene.add(buttonMesh);
+
+  var roundButton = new PushButton(
+    new InteractablePlane(buttonMesh, Leap.loopController, {moveX: false, moveY: false})
+  );
+
+  var playCount = 0;
+  roundButton.plane.hover(
+    function(mesh){ // over
+      document.getElementById("sound-file5").play();
+      if(playCount > 0){
+        document.getElementById("sound-file5").currentTime = 0;
+      }
+      playCount = 1;
+      console.log('hover in');
+      mesh.material.opacity = 1;
+      mesh.scale.setX(1.2);
+      mesh.scale.setY(1.2);
+    },
+    function(mesh){ // out
+      console.log('hover out');
+      mesh.material.opacity = 0.8;
+      mesh.scale.setX(1.0);
+      mesh.scale.setY(1.0);
+    }
+  );
+
+
+  //太鼓ポン
+  var circleGeo = new THREE.CircleGeometry(0.02, 40);//(サイズ、角数)
+  var texture = THREE.ImageUtils.loadTexture('imgs/instrument06.png');
+  var material = new THREE.MeshBasicMaterial({map:texture});
+  material.opacity = 0.8; 
+  buttonMesh = new THREE.Mesh(circleGeo, material);
+  buttonMesh.name = "round button";
+  buttonMesh.position.set(0.25, 0.1, 0);//丸ボタン移動
+  scene.add(buttonMesh);
+
+  var roundButton = new PushButton(
+    new InteractablePlane(buttonMesh, Leap.loopController, {moveX: false, moveY: false})
+  );
+
+  var playCount = 0;
+  roundButton.plane.hover(
+    function(mesh){ // over
+      document.getElementById("sound-file6").play();
+      if(playCount > 0){
+        document.getElementById("sound-file6").currentTime = 0;
+      }
+      playCount = 1;
+      console.log('hover in');
+      mesh.material.opacity = 1;
+      mesh.scale.setX(1.2);
+      mesh.scale.setY(1.2);
+    },
+    function(mesh){ // out
+      console.log('hover out');
+      mesh.material.opacity = 0.8;
+      mesh.scale.setX(1.0);
+      mesh.scale.setY(1.0);
+    }
+  );
+
+
+
+
+
+
+
+
+  // document.getElementById('view-source').href = "view-source:" + window.location.href;
+  // document.getElementById('view-source').target = "_blank";
+
+</script>
+
+
+
+<!-- Leap loopが前にあると再生できないので後にもってきた -->
+<iframe id="myPlayer" width="560" height="315" src="https://www.youtube.com/embed/vVIA1ISs6M4" frameborder="30" allowfullscreen></iframe>
+
+
+<!--
+＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+processing.js
+＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+-->
+
+<script type="text/javascript" src="processing.min.js"></script>
+<script type="text/processing" data-processing-target="processing-canvas">
+
+int _num = 15;
+Circle[] _circleArr = {};   
+
+void setup() {
+  size(innerWidth,innerHeight);
+  background(255);
+  smooth();
+  strokeWeight(1);
+  fill(150, 50); //fill(value1, alpha)
+  drawCircles();
+}
+
+void draw() {
+  background(255);
+  for (int i=0; i<_circleArr.length; i++) {
+    Circle thisCirc = _circleArr[i];
+    thisCirc.updateMe();
+  }
+}
+
+//void mouseReleased() {
+//  drawCircles();
+//  println(_circleArr.length);
+//}
+
+void drawCircles() {
+  for (int i=0; i<_num; i++) { 
+    Circle thisCirc = new Circle();
+    thisCirc.drawMe();
+    _circleArr = (Circle[])append(_circleArr, thisCirc);
+  }
+}
+
+
+//================================= objects
+
+class Circle {
+
+  // properties
+  float x, y;
+  float radius; 
+  color linecol, fillcol; 
+  float alph;
+  float xmove, ymove;
+  
+  // constructor
+  Circle () {
+    x = random(width);
+    y = random(height);
+    radius = random(100) + 50; 
+//    linecol = color(random(255), random(255), random(255));
+//    fillcol = color(random(255), random(255), random(255));
+//    alph = random(255);//色消す
+    xmove = random(10) - 5;   
+    ymove = random(10) - 5; 
+  }
+  
+  // method - render me to screen
+  void drawMe() { 
+    noStroke(); 
+    fill(fillcol, alph);
+    ellipse(x, y, radius*2, radius*2);
+//    stroke(linecol, 150);//内側の円
+    noFill();
+    ellipse(x, y, 10, 10);
+  }
+  
+  // method - called on the frameloop
+  void updateMe() {
+    x += xmove/2;// /2でスピードを半減させた
+    y += ymove/2;
+    if (x > (width+radius)) { x = 0 - radius; }
+    if (x < (0-radius)) { x = width+radius; }
+    if (y > (height+radius)) { y = 0 - radius; }
+    if (y < (0-radius)) { y = height+radius; }
+    
+   for (int i=0; i<_circleArr.length; i++) {
+      Circle otherCirc = _circleArr[i];
+      if (otherCirc != this) {  
+        float dis = dist(x, y, otherCirc.x, otherCirc.y); 
+        float overlap = dis - radius - otherCirc.radius; //重なった部分を計算する
+        if (overlap < 0) { //重なりがマイナス=接触
+          float midx, midy;
+          if (x < otherCirc.x) {
+            midx = x + (otherCirc.x - x)/2;
+          } else {
+            midx = otherCirc.x + (x - otherCirc.x)/2;
+          }
+          if (y < otherCirc.y) {
+            midy = y + (otherCirc.y - y)/2;
+          } else {
+            midy = otherCirc.y + (y - otherCirc.y)/2;
+          }
+          stroke(0, 100);
+          noFill();
+          overlap *= -1; 
+          ellipse(midx, midy, overlap, overlap);
+        }
+      }
+    }
+    
+    drawMe();
+  }
+
+}
+
+</script>
+
+
+</body>
+</html>

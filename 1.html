@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>Leap Tube</title>
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="js/jquery-2.1.1.js"></script>
+	<script src="shards.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.18.1/build/cssreset/cssreset-min.css">
+	<style>
+		body{
+			margin: 0;
+			padding: 0;
+			font-family : Century Gothic,'ＭＳ Ｐゴシック',sans-serif ;
+		}
+		#bg{
+			position: relative;
+		}
+
+		#logo{
+			position:absolute;
+			top:50%;
+			left:50%;
+			-moz-transform:translate(-50%, -50%);
+			-webkit-transform:translate(-50%, -50%);
+			-o-transform:translate(-50%, -50%);
+			-ms-transform:translate(-50%, -50%);
+			transform:translate(-50%, -50%);
+		}
+		#dummy{
+			width: 302px;
+			height: 123px;
+			cursor: pointer;
+			position:absolute;
+			top:50%;
+			left:50%;
+			-moz-transform:translate(-50%, -50%);
+			-webkit-transform:translate(-50%, -50%);
+			-o-transform:translate(-50%, -50%);
+			-ms-transform:translate(-50%, -50%);
+			transform:translate(-50%, -50%);
+		}
+		#play a{
+			color: #fff;
+			font-size: 2rem;
+			text-decoration: none;
+			list-style: none;
+			position:absolute;
+			outline: none;
+			top: 60%;
+			left:50%;
+			-moz-transform:translate(-50%, -50%);
+			-webkit-transform:translate(-50%, -50%);
+			-o-transform:translate(-50%, -50%);
+			-ms-transform:translate(-50%, -50%);
+			transform:translate(-50%, -50%);
+		}
+
+		#text{
+			/*background-color: #fff;/*#dcdddd*/
+			position: relative;
+			height: 400px;
+
+			/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#dcdddd+0,ffffff+20,ffffff+80,dcdddd+100 */
+			background: rgb(220,221,221); /* Old browsers */
+			background: -moz-linear-gradient(top,  rgba(220,221,221,1) 0%, rgba(255,255,255,1) 20%, rgba(255,255,255,1) 80%, rgba(220,221,221,1) 100%); /* FF3.6+ */
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(220,221,221,1)), color-stop(20%,rgba(255,255,255,1)), color-stop(80%,rgba(255,255,255,1)), color-stop(100%,rgba(220,221,221,1))); /* Chrome,Safari4+ */
+			background: -webkit-linear-gradient(top,  rgba(220,221,221,1) 0%,rgba(255,255,255,1) 20%,rgba(255,255,255,1) 80%,rgba(220,221,221,1) 100%); /* Chrome10+,Safari5.1+ */
+			background: -o-linear-gradient(top,  rgba(220,221,221,1) 0%,rgba(255,255,255,1) 20%,rgba(255,255,255,1) 80%,rgba(220,221,221,1) 100%); /* Opera 11.10+ */
+			background: -ms-linear-gradient(top,  rgba(220,221,221,1) 0%,rgba(255,255,255,1) 20%,rgba(255,255,255,1) 80%,rgba(220,221,221,1) 100%); /* IE10+ */
+			background: linear-gradient(to bottom,  rgba(220,221,221,1) 0%,rgba(255,255,255,1) 20%,rgba(255,255,255,1) 80%,rgba(220,221,221,1) 100%); /* W3C */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dcdddd', endColorstr='#dcdddd',GradientType=0 ); /* IE6-9 */
+
+
+
+		}
+		#text p{
+			position:absolute;
+			top:50%;
+			left:50%;
+			-moz-transform:translate(-50%, -50%);
+			-webkit-transform:translate(-50%, -50%);
+			-o-transform:translate(-50%, -50%);
+			-ms-transform:translate(-50%, -50%);
+			transform:translate(-50%, -50%);
+			width: 80%;
+			text-align: center;
+			line-height: 2rem;
+		}
+		#bg1{
+			position: relative;
+		}
+		#bg1 img{
+			position:absolute;
+			top:0%;
+			left:50%;
+			-moz-transform:translate(-50%, 0%);
+			-webkit-transform:translate(-50%, 0%);
+			-o-transform:translate(-50%, 0%);
+			-ms-transform:translate(-50%, 0%);
+			transform:translate(-50%, 0%);
+		}
+		#bg1 iframe{
+			background-color: #ccc;
+			position:absolute;
+			top:50%;
+			left:50%;
+			-moz-transform:translate(-50%, -50%);
+			-webkit-transform:translate(-50%, -50%);
+			-o-transform:translate(-50%, -50%);
+			-ms-transform:translate(-50%, -50%);
+			transform:translate(-50%, -50%);
+		}
+		small{
+			position:absolute;
+			bottom: 5%;
+			left:50%;
+			-moz-transform:translate(-50%, -50%);
+			-webkit-transform:translate(-50%, -50%);
+			-o-transform:translate(-50%, -50%);
+			-ms-transform:translate(-50%, -50%);
+			transform:translate(-50%, -50%);
+
+		}
+
+		.scroll{
+			/*display: block;*/
+			width: 70px;
+			height:90px;
+			background: transparent url(imgs/scroll.png) no-repeat 0 0;
+			text-indent: -9999px;
+			position: fixed;
+			right: 0;
+			bottom: 110px;
+			left: 0;
+			margin: auto;
+			z-index: 1000;
+			display: none;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="bg">
+		<div id="logo">
+			<a href="http://mo49.tokyo/leap-tube/" target="_blank"><div id="dummy"></div></a>
+			<img src="imgs/logo.png" alt="">
+			<div id="play"><a href="http://mo49.tokyo/leap-tube/" target="_blank">play</a></div>
+		</div>
+	</div>
+
+	<div id="text">
+		<p><span style="font-size: 1.5rem;">楽器に触れずに楽器を弾ける、Leap Motionを使った音ゲーが登場。</span><br><br>YouTubeの動画に合わせて演奏してみよう！<br>第一弾は「千本桜」、随時コンテンツ追加予定！<br>（※ご使用にはLeapMotionが必要です。）</p>
+	</div>
+
+	<div id="bg1">
+		<img src="imgs/logo2.png" height="426" width="844" alt="">
+		<iframe id="myPlayer" width="672" height="378" src="https://www.youtube.com/embed/RO7OR7qBc0Q?rel=0" frameborder="30" allowfullscreen></iframe>
+		<small>
+			copyright &copy; 2015 MOCHIZUKI KAZUKI
+		</small>
+	</div>
+
+	<p class="scroll">please scroll down.</p>
+
+	
+<script>
+	$('#bg').shards([0,0,0,.1],[255,0,0,.2],[255,255,55,.2],10,2,2,.1,true);
+	$('#bg1').shards([0,0,0,.1],[255,0,0,.1],[255,255,55,.1],10,2,2,.1,true);
+
+	//スクロールアイコン
+	$(document).ready(function(){
+
+		$(".scroll").fadeIn();
+
+		//スクロールしたら消す
+		$(window).scroll(function(){
+			$(".scroll").fadeOut();
+		});
+	});
+</script>
+
+</body>
+</html>
